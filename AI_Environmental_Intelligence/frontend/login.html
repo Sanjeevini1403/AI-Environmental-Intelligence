@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In & Register — AirSense AI Environmental Intelligence</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Main Style CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        body.auth-page {
+            min-height: 100vh;
+            background: radial-gradient(circle at 15% 25%, rgba(6, 182, 212, 0.12) 0%, transparent 40%),
+                        radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.10) 0%, transparent 45%),
+                        linear-gradient(135deg, #090d16 0%, #0c1222 50%, #070a12 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .auth-particles-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .particle-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(50px);
+            opacity: 0.25;
+            animation: floatOrb 18s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 340px; height: 340px; background: #06b6d4; top: 10%; left: 5%; }
+        .orb-2 { width: 280px; height: 280px; background: #10b981; bottom: 10%; right: 10%; animation-delay: -7s; }
+        .orb-3 { width: 220px; height: 220px; background: #8b5cf6; top: 60%; left: 40%; animation-delay: -12s; }
+
+        @keyframes floatOrb {
+            0% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-30px) scale(1.08); }
+            100% { transform: translateY(20px) scale(0.95); }
+        }
+
+        .auth-card-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 520px;
+            background: rgba(18, 26, 47, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 40px rgba(6, 182, 212, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            animation: cardFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .auth-card-header {
+            padding: 2rem 2rem 1.4rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+        }
+
+        .auth-logo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 0.8rem;
+            text-decoration: none;
+        }
+
+        .auth-logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #06b6d4, #10b981);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0b0f19;
+            font-size: 1.35rem;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
+        }
+
+        .auth-logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+        .auth-logo-text span {
+            color: #06b6d4;
+        }
+
+        .auth-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 0.3rem;
+        }
+
+        .auth-card-subtitle {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: rgba(10, 15, 29, 0.6);
+            padding: 0.35rem;
+            margin: 1.2rem 2rem 0;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            gap: 0.35rem;
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            padding: 0.65rem;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .auth-tab-btn.active {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .auth-card-body {
+            padding: 1.8rem 2rem 2rem;
+        }
+
+        .auth-form-panel {
+            display: none;
+        }
+        .auth-form-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-group-auth {
+            margin-bottom: 1.1rem;
+        }
+
+        .auth-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.45rem;
+        }
+
+        .auth-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-input-wrap i.input-icon {
+            position: absolute;
+            left: 1rem;
+            color: #64748b;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 0.75rem 2.8rem 0.75rem 2.7rem;
+            background: rgba(11, 17, 33, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 11px;
+            color: #f8fafc;
+            font-size: 0.88rem;
+            outline: none;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .auth-input:focus {
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.18);
+            background: rgba(15, 23, 42, 0.95);
+        }
+        .auth-input:focus + i.input-icon,
+        .auth-input-wrap:focus-within i.input-icon {
+            color: #06b6d4;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 0.9rem;
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 0.3rem;
+            font-size: 0.9rem;
+        }
+        .password-toggle-btn:hover { color: #f1f5f9; }
+
+        .auth-select {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.7rem;
+            background: rgba(11, 17, 33, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 11px;
+            color: #f8fafc;
+            font-size: 0.88rem;
+            outline: none;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .auth-select:focus {
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.18);
+        }
+        .auth-select option {
+            background: #0f172a;
+            color: #f8fafc;
+        }
+
+        .auth-row-extra {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            margin-bottom: 1.3rem;
+            color: #94a3b8;
+        }
+
+        .auth-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .auth-link {
+            color: #06b6d4;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .auth-link:hover {
+            color: #38bdf8;
+            text-decoration: underline;
+        }
+
+        .btn-auth-submit {
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+            border: none;
+            border-radius: 11px;
+            color: #090d16;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35);
+            font-family: inherit;
+        }
+
+        .btn-auth-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.45);
+            filter: brightness(1.06);
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0 1.2rem;
+            color: #64748b;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .auth-divider::before, .auth-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .auth-divider span { padding: 0 0.8rem; }
+
+        .demo-logins-title {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+            text-align: center;
+        }
+
+        .demo-logins-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .btn-demo-quick {
+            padding: 0.6rem 0.75rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 9px;
+            color: #e2e8f0;
+            font-size: 0.76rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .btn-demo-quick:hover {
+            background: rgba(6, 182, 212, 0.12);
+            border-color: rgba(6, 182, 212, 0.35);
+            color: #38bdf8;
+            transform: translateY(-1px);
+        }
+
+        .auth-card-footer {
+            padding: 1.1rem 2rem 1.4rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(10, 15, 29, 0.4);
+            font-size: 0.82rem;
+            color: #94a3b8;
+        }
+
+        .auth-toast-msg {
+            padding: 0.7rem 0.9rem;
+            border-radius: 9px;
+            font-size: 0.82rem;
+            margin-bottom: 1.1rem;
+            display: none;
+            animation: fadeIn 0.2s ease;
+        }
+        .auth-toast-msg.error {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #f87171;
+        }
+        .auth-toast-msg.success {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+        }
+    </style>
+</head>
+<body class="auth-page">
+
+    <!-- Atmospheric Particle Background -->
+    <div class="auth-particles-bg">
+        <div class="particle-orb orb-1"></div>
+        <div class="particle-orb orb-2"></div>
+        <div class="particle-orb orb-3"></div>
+    </div>
+
+    <!-- Auth Card -->
+    <div class="auth-card-wrapper">
+        <div class="auth-card-header">
+            <a href="index.html" class="auth-logo-badge">
+                <div class="auth-logo-icon"><i class="fa-solid fa-wind"></i></div>
+                <div class="auth-logo-text">AirSense <span>AI</span></div>
+            </a>
+            <h1 class="auth-card-title">Environmental Intelligence</h1>
+            <p class="auth-card-subtitle">Personalized pollution tracking, smart routing & health advisory</p>
+        </div>
+
+        <!-- Navigation Tabs: Sign In / Register -->
+        <div class="auth-tabs">
+            <button class="auth-tab-btn active" id="tab-login-btn" onclick="switchAuthTab('login')">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+            </button>
+            <button class="auth-tab-btn" id="tab-register-btn" onclick="switchAuthTab('register')">
+                <i class="fa-solid fa-user-plus"></i> Create Account
+            </button>
+        </div>
+
+        <div class="auth-card-body">
+            <!-- Toast notification container -->
+            <div id="auth-alert-box" class="auth-toast-msg"></div>
+
+            <!-- ================= FORM 1: SIGN IN ================= -->
+            <div class="auth-form-panel active" id="panel-login">
+                <form id="login-form" onsubmit="handleLoginPageSubmit(event)">
+                    <div class="form-group-auth">
+                        <label class="auth-label" for="login-email">Email or Username</label>
+                        <div class="auth-input-wrap">
+                            <i class="fa-solid fa-envelope input-icon"></i>
+                            <input type="text" id="login-email" class="auth-input" placeholder="e.g. sanjeevini@airsense.ai" required autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="form-group-auth">
+                        <label class="auth-label" for="login-password">Password</label>
+                        <div class="auth-input-wrap">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input type="password" id="login-password" class="auth-input" placeholder="Enter your password" required autocomplete="current-password">
+                            <button type="button" class="password-toggle-btn" onclick="togglePasswordVis('login-password')">
+                                <i class="fa-solid fa-eye" id="eye-login-password"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="auth-row-extra">
+                        <label class="auth-checkbox-label">
+                            <input type="checkbox" id="login-remember" checked>
+                            <span>Remember session</span>
+                        </label>
+                        <a href="javascript:void(0)" onclick="quickDemoLogin('sanjeevini')" class="auth-link">Quick Demo Access</a>
+                    </div>
+
+                    <button type="submit" id="btn-login-submit" class="btn-auth-submit">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to AirSense
+                    </button>
+                </form>
+
+                <!-- 1-Click Fast Demo Logins -->
+                <div class="auth-divider"><span>Or 1-Click Demo Profiles</span></div>
+                <div class="demo-logins-title">Click any profile for instant demonstration login:</div>
+                <div class="demo-logins-grid">
+                    <button class="btn-demo-quick" onclick="quickDemoLogin('sanjeevini')">
+                        <i class="fa-solid fa-lungs" style="color:#ef4444"></i>
+                        <div>
+                            <div>Sanjeevini S.</div>
+                            <div style="font-size:0.68rem; color:#94a3b8">Asthma Alert Mode (Chennai)</div>
+                        </div>
+                    </button>
+                    <button class="btn-demo-quick" onclick="quickDemoLogin('commuter')">
+                        <i class="fa-solid fa-car-side" style="color:#06b6d4"></i>
+                        <div>
+                            <div>Rahul Sharma</div>
+                            <div style="font-size:0.68rem; color:#94a3b8">Urban Commuter (Mumbai)</div>
+                        </div>
+                    </button>
+                    <button class="btn-demo-quick" onclick="quickDemoLogin('cyclist')">
+                        <i class="fa-solid fa-person-biking" style="color:#10b981"></i>
+                        <div>
+                            <div>Ananya Rao</div>
+                            <div style="font-size:0.68rem; color:#94a3b8">Eco Cyclist (Bengaluru)</div>
+                        </div>
+                    </button>
+                    <button class="btn-demo-quick" onclick="quickDemoLogin('admin')">
+                        <i class="fa-solid fa-shield-halved" style="color:#a855f7"></i>
+                        <div>
+                            <div>AirSense Admin</div>
+                            <div style="font-size:0.68rem; color:#94a3b8">Central HQ (Pune)</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= FORM 2: CREATE ACCOUNT ================= -->
+            <div class="auth-form-panel" id="panel-register">
+                <form id="register-form" onsubmit="handleRegisterPageSubmit(event)">
+                    <div class="form-group-auth">
+                        <label class="auth-label" for="reg-name">Full Name</label>
+                        <div class="auth-input-wrap">
+                            <i class="fa-solid fa-user input-icon"></i>
+                            <input type="text" id="reg-name" class="auth-input" placeholder="e.g. Sanjeevini Sasikumar" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group-auth">
+                        <label class="auth-label" for="reg-email">Email Address</label>
+                        <div class="auth-input-wrap">
+                            <i class="fa-solid fa-envelope input-icon"></i>
+                            <input type="email" id="reg-email" class="auth-input" placeholder="name@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group-auth">
+                        <label class="auth-label" for="reg-password">Password</label>
+                        <div class="auth-input-wrap">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input type="password" id="reg-password" class="auth-input" placeholder="Create a secure password" required minlength="4">
+                            <button type="button" class="password-toggle-btn" onclick="togglePasswordVis('reg-password')">
+                                <i class="fa-solid fa-eye" id="eye-reg-password"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+                        <div class="form-group-auth">
+                            <label class="auth-label" for="reg-city">Primary City</label>
+                            <div class="auth-input-wrap">
+                                <i class="fa-solid fa-city input-icon"></i>
+                                <select id="reg-city" class="auth-select">
+                                    <option value="pune">Pune (Core)</option>
+                                    <option value="chennai" selected>Chennai</option>
+                                    <option value="delhi">Delhi NCR</option>
+                                    <option value="mumbai">Mumbai</option>
+                                    <option value="bengaluru">Bengaluru</option>
+                                    <option value="coimbatore">Coimbatore</option>
+                                    <option value="madurai">Madurai</option>
+                                    <option value="salem">Salem</option>
+                                    <option value="trichy">Tiruchirappalli</option>
+                                    <option value="hyderabad">Hyderabad</option>
+                                    <option value="kolkata">Kolkata</option>
+                                    <option value="ahmedabad">Ahmedabad</option>
+                                    <option value="jaipur">Jaipur</option>
+                                    <option value="kochi">Kochi</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group-auth">
+                            <label class="auth-label" for="reg-profile">Health Profile</label>
+                            <div class="auth-input-wrap">
+                                <i class="fa-solid fa-heart-pulse input-icon"></i>
+                                <select id="reg-profile" class="auth-select">
+                                    <option value="normal">Normal Public</option>
+                                    <option value="asthmatic">Asthmatic / Sensitive</option>
+                                    <option value="elderly">Elderly (65+)</option>
+                                    <option value="children">Children (<12)</option>
+                                    <option value="athlete">Outdoor Athlete</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-register-submit" class="btn-auth-submit" style="margin-top:0.5rem">
+                        <i class="fa-solid fa-user-check"></i> Complete Registration
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="auth-card-footer">
+            <span>Prefer to explore without an account?</span>
+            <a href="index.html" class="auth-link" style="margin-left: 0.35rem; font-weight: 600;">
+                <i class="fa-solid fa-house"></i> Continue to Live Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin.includes(":8000") 
+            ? window.location.origin 
+            : "http://127.0.0.1:8000";
+
+        function switchAuthTab(tab) {
+            document.querySelectorAll(".auth-tab-btn").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".auth-form-panel").forEach(p => p.classList.remove("active"));
+            hideAlert();
+
+            if (tab === "login") {
+                document.getElementById("tab-login-btn").classList.add("active");
+                document.getElementById("panel-login").classList.add("active");
+            } else {
+                document.getElementById("tab-register-btn").classList.add("active");
+                document.getElementById("panel-register").classList.add("active");
+            }
+        }
+
+        function togglePasswordVis(inputId) {
+            const input = document.getElementById(inputId);
+            const eye = document.getElementById("eye-" + inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                eye.classList.remove("fa-eye");
+                eye.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                eye.classList.remove("fa-eye-slash");
+                eye.classList.add("fa-eye-eye");
+            }
+        }
+
+        function showAlert(msg, type = "error") {
+            const box = document.getElementById("auth-alert-box");
+            box.className = "auth-toast-msg " + type;
+            const icon = type === "error" ? "fa-circle-exclamation" : "fa-circle-check";
+            box.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${msg}</span>`;
+            box.style.display = "flex";
+        }
+
+        function hideAlert() {
+            const box = document.getElementById("auth-alert-box");
+            box.style.display = "none";
+        }
+
+        function saveSessionAndRedirect(user) {
+            localStorage.setItem("airsense_user", JSON.stringify(user));
+            showAlert("Welcome back, " + user.name + "! Redirecting to dashboard...", "success");
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 800);
+        }
+
+        async function handleLoginPageSubmit(e) {
+            e.preventDefault();
+            hideAlert();
+            const email = document.getElementById("login-email").value.trim();
+            const password = document.getElementById("login-password").value.trim();
+            const btn = document.getElementById("btn-login-submit");
+
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                btn.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to AirSense`;
+                btn.disabled = false;
+
+                if (res.ok && data.success) {
+                    saveSessionAndRedirect(data.user);
+                } else {
+                    showAlert(data.detail || data.message || "Invalid email or password.");
+                }
+            } catch (err) {
+                // Client-side fallback login for standalone mode
+                btn.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to AirSense`;
+                btn.disabled = false;
+                const fallbackUser = {
+                    id: "usr-" + Date.now(),
+                    name: email.split("@")[0].toUpperCase(),
+                    email: email,
+                    city: "pune",
+                    health_profile: "normal",
+                    token: "client-token-" + Date.now()
+                };
+                saveSessionAndRedirect(fallbackUser);
+            }
+        }
+
+        async function handleRegisterPageSubmit(e) {
+            e.preventDefault();
+            hideAlert();
+            const name = document.getElementById("reg-name").value.trim();
+            const email = document.getElementById("reg-email").value.trim();
+            const password = document.getElementById("reg-password").value.trim();
+            const city = document.getElementById("reg-city").value;
+            const health_profile = document.getElementById("reg-profile").value;
+            const btn = document.getElementById("btn-register-submit");
+
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Registering Account...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, email, password, city, health_profile })
+                });
+                const data = await res.json();
+                btn.innerHTML = `<i class="fa-solid fa-user-check"></i> Complete Registration`;
+                btn.disabled = false;
+
+                if (res.ok && data.success) {
+                    saveSessionAndRedirect(data.user);
+                } else {
+                    showAlert(data.detail || data.message || "Registration failed.");
+                }
+            } catch (err) {
+                btn.innerHTML = `<i class="fa-solid fa-user-check"></i> Complete Registration`;
+                btn.disabled = false;
+                const newUser = {
+                    id: "usr-" + Date.now(),
+                    name: name,
+                    email: email,
+                    city: city,
+                    health_profile: health_profile,
+                    token: "client-token-" + Date.now()
+                };
+                saveSessionAndRedirect(newUser);
+            }
+        }
+
+        function quickDemoLogin(demoType) {
+            const demoMap = {
+                sanjeevini: { id: "usr-sanj", name: "Sanjeevini S.", email: "sanjeevini@airsense.ai", city: "chennai", health_profile: "asthmatic", role: "user" },
+                commuter: { id: "usr-comm", name: "Rahul Sharma", email: "commuter@airsense.ai", city: "mumbai", health_profile: "normal", role: "user" },
+                cyclist: { id: "usr-cycl", name: "Ananya Rao", email: "cyclist@airsense.ai", city: "bengaluru", health_profile: "athlete", role: "user" },
+                admin: { id: "usr-admin", name: "AirSense Admin", email: "admin@airsense.ai", city: "pune", health_profile: "normal", role: "admin" }
+            };
+            const u = demoMap[demoType] || demoMap.sanjeevini;
+            saveSessionAndRedirect(u);
+        }
+    </script>
+</body>
+</html>

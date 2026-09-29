@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirSense AI — Environmental Intelligence & Smart Mobility</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Leaflet & Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-theme">
+
+    <div class="app-layout">
+
+        <!-- ==================== Top Header Bar ==================== -->
+        <header class="top-nav">
+            <div class="nav-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-wind"></i>
+                </div>
+                <div>
+                    <div class="brand-title">AirSense <span>AI</span></div>
+                    <div class="brand-subtitle">Environmental Intelligence & Smart Mobility</div>
+                </div>
+            </div>
+
+            <!-- Main Navigation Tabs -->
+            <nav class="nav-links" role="tablist">
+                <button class="nav-link active" id="tab-btn-dashboard" onclick="switchMainTab('dashboard')">
+                    <i class="fa-solid fa-chart-line"></i> Dashboard
+                </button>
+                <button class="nav-link" id="tab-btn-map" onclick="switchMainTab('map')">
+                    <i class="fa-solid fa-map-location-dot"></i> Live Map & AQI
+                </button>
+                <button class="nav-link" id="tab-btn-routes" onclick="switchMainTab('routes')">
+                    <i class="fa-solid fa-route"></i> Smart Routes & Traffic
+                </button>
+                <button class="nav-link" id="tab-btn-forecast" onclick="switchMainTab('forecast')">
+                    <i class="fa-solid fa-clock-rotate-left"></i> 24h Predictions
+                </button>
+                <button class="nav-link" id="tab-btn-exposure" onclick="switchMainTab('exposure')">
+                    <i class="fa-solid fa-shield-heart"></i> Exposure History
+                </button>
+                <button class="nav-link" id="tab-btn-parking" onclick="switchMainTab('parking')">
+                    <i class="fa-solid fa-square-parking"></i> Smart Parking
+                </button>
+            </nav>
+
+            <!-- Top Right Settings: City & Health Profile & User Auth -->
+            <div class="nav-controls">
+                <!-- City Selector -->
+                <div class="control-group">
+                    <label for="city-select"><i class="fa-solid fa-city"></i></label>
+                    <select id="city-select" onchange="changeCity(this.value)">
+                        <option value="pune" selected>Pune (Core)</option>
+                        <option value="chennai">Chennai</option>
+                        <option value="delhi">Delhi NCR</option>
+                        <option value="mumbai">Mumbai</option>
+                        <option value="bengaluru">Bengaluru</option>
+                        <option value="coimbatore">Coimbatore</option>
+                        <option value="madurai">Madurai</option>
+                        <option value="salem">Salem</option>
+                        <option value="trichy">Tiruchirappalli (Trichy)</option>
+                        <option value="hyderabad">Hyderabad</option>
+                        <option value="kolkata">Kolkata</option>
+                        <option value="ahmedabad">Ahmedabad</option>
+                        <option value="jaipur">Jaipur</option>
+                        <option value="lucknow">Lucknow</option>
+                        <option value="chandigarh">Chandigarh</option>
+                        <option value="kochi">Kochi</option>
+                    </select>
+                </div>
+
+                <!-- Health Profile Selector -->
+                <div class="control-group">
+                    <label for="health-profile-select"><i class="fa-solid fa-user-doctor"></i></label>
+                    <select id="health-profile-select" onchange="changeHealthProfile(this.value)">
+                        <option value="normal" selected>Profile: Normal</option>
+                        <option value="asthmatic">Profile: Asthmatic / Sensitive</option>
+                        <option value="elderly">Profile: Elderly (65+)</option>
+                        <option value="children">Profile: Children (<12)</option>
+                        <option value="athlete">Profile: Outdoor Athlete</option>
+                    </select>
+                </div>
+
+                <!-- Web Push Notifications Toggle -->
+                <button id="push-notify-btn" class="btn-icon" onclick="requestNotificationPermission()" title="Enable High Pollution Push Alerts">
+                    <i class="fa-solid fa-bell"></i>
+                </button>
+
+                <!-- User Account / Auth Widget -->
+                <div class="nav-auth-wrapper" id="nav-auth-container">
+                    <button id="nav-login-btn" class="btn-auth-pill" onclick="openAuthModal()">
+                        <i class="fa-solid fa-circle-user"></i> <span id="nav-auth-label">Sign In</span>
+                    </button>
+                    <div id="nav-user-dropdown" class="user-dropdown-menu hidden">
+                        <div class="user-dropdown-header">
+                            <div class="user-avatar-circle" id="menu-user-avatar">S</div>
+                            <div class="user-info-text">
+                                <div class="user-display-name" id="menu-user-name">Sanjeevini S.</div>
+                                <div class="user-role-badge" id="menu-user-role">Asthmatic Mode</div>
+                            </div>
+                        </div>
+                        <div class="user-dropdown-divider"></div>
+                        <a href="login.html" class="user-dropdown-item"><i class="fa-solid fa-user-gear"></i> Full Account Page</a>
+                        <button class="user-dropdown-item" onclick="openAuthModal('login')"><i class="fa-solid fa-users-gear"></i> Switch User Profile</button>
+                        <div class="user-dropdown-divider"></div>
+                        <button class="user-dropdown-item text-danger" onclick="logoutUser()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ==================== Alert Banner ==================== -->
+        <div id="system-alert-banner" class="system-alert-banner hidden">
+            <div class="alert-content">
+                <i class="fa-solid fa-triangle-exclamation alert-icon"></i>
+                <div id="system-alert-text">Alert: High pollution threshold reached in your area!</div>
+            </div>
+            <button class="alert-close" onclick="closeAlertBanner()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- ==================== Main Content Panels ==================== -->
+        <main class="main-viewport">
+
+            <!-- ======================================================== -->
+            <!-- TAB 1: DASHBOARD (Matching Page 4 Specification)       -->
+            <!-- ======================================================== -->
+            <section class="panel-section active" id="panel-dashboard">
+                <div class="dashboard-header-row">
+                    <div>
+                        <h1 class="page-title">Air Quality Dashboard</h1>
+                        <p class="page-desc">Real-time CPCB / OpenAQ station telemetry and 24-hour predictive AI forecasting</p>
+                    </div>
+                    <div class="live-indicator">
+                        <span class="pulse-dot"></span> <span id="kpi-live-region">Pune Metropolitan Region</span>
+                    </div>
+                </div>
+
+                <!-- Top 4 KPI Metric Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card card-cyan">
+                        <div class="kpi-top">
+                            <span class="kpi-label">Stations Active</span>
+                            <i class="fa-solid fa-tower-broadcast kpi-icon"></i>
+                        </div>
+                        <div class="kpi-value" id="kpi-active-stations">84</div>
+                        <div class="kpi-sub" id="kpi-sub-stations">7 Major Metros Monitored</div>
+                    </div>
+
+                    <div class="kpi-card card-amber">
+                        <div class="kpi-top">
+                            <span class="kpi-label">AQI Alerts Today</span>
+                            <i class="fa-solid fa-bell-exclamation kpi-icon"></i>
+                        </div>
+                        <div class="kpi-value" id="kpi-alerts-today">23</div>
+                        <div class="kpi-sub" id="kpi-sub-alerts">6 Hazardous Corridors</div>
+                    </div>
+
+                    <div class="kpi-card card-green">
+                        <div class="kpi-top">
+                            <span class="kpi-label">Forecast Accuracy</span>
+                            <i class="fa-solid fa-bullseye kpi-icon"></i>
+                        </div>
+                        <div class="kpi-value" id="kpi-accuracy">89.4%</div>
+                        <div class="kpi-sub">24-Hour ML Evaluation</div>
+                    </div>
+
+                    <div class="kpi-card card-purple">
+                        <div class="kpi-top">
+                            <span class="kpi-label">Avg City AQI</span>
+                            <i class="fa-solid fa-smog kpi-icon"></i>
+                        </div>
+                        <div class="kpi-value" id="kpi-avg-aqi">125</div>
+                        <div class="kpi-sub" id="kpi-avg-cat">Moderate Category</div>
+                    </div>
+                </div>
+
+                <!-- Middle Charts Row -->
+                <div class="dashboard-charts-grid">
+                    <!-- Left: Station / 24h Prediction Comparison Chart -->
+                    <div class="glass-card chart-card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">AQI Levels by Station & Metropolitan Hubs</h3>
+                                <p class="card-subtitle">Real-time sensor readings across active stations</p>
+                            </div>
+                            <span class="badge badge-accent">Live Telemetry</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="stationsBarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Right: AQI Category Breakdown Donut -->
+                    <div class="glass-card chart-card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">AQI Category Breakdown</h3>
+                                <p class="card-subtitle">Distribution of air quality tiers</p>
+                            </div>
+                            <span class="badge badge-outline" id="total-stations-badge">84 Stations</span>
+                        </div>
+                        <div class="chart-container donut-wrap">
+                            <canvas id="categoryDonutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom: Recent AQI Predictions vs Actual Table -->
+                <div class="glass-card table-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Recent AQI Predictions vs Actual Monitoring</h3>
+                            <p class="card-subtitle">Comparison between AI forecasted index and ground-truth sensor feeds</p>
+                        </div>
+                        <button class="btn-sm btn-secondary" onclick="loadDashboardData()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table" id="stations-table">
+                            <thead>
+                                <tr>
+                                    <th>Station</th>
+                                    <th>City</th>
+                                    <th>Predicted AQI</th>
+                                    <th>Actual AQI</th>
+                                    <th>Primary Pollutant</th>
+                                    <th>Category</th>
+                                    <th>Accuracy</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stations-table-body">
+                                <tr><td colspan="8" class="text-center">Loading station telemetry...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- TAB 2: LIVE MAP & AQI HEATMAP                           -->
+            <!-- ======================================================== -->
+            <section class="panel-section" id="panel-map">
+                <div class="map-view-container">
+                    
+                    <!-- Map Sidebar / Reading Details -->
+                    <aside class="map-sidebar">
+                        <!-- Search Box -->
+                        <div class="side-block">
+                            <label class="side-label">Search Any Location</label>
+                            <div class="search-input-wrap">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" id="map-search-input" placeholder="Search city, area or street..." autocomplete="off">
+                                <button class="btn-primary-sm" onclick="handleMapSearch()">Check</button>
+                            </div>
+                            <div class="suggestions-box hidden" id="map-search-suggestions"></div>
+                            
+                            <div class="quick-actions">
+                                <button class="btn-outline-sm" onclick="useMyLocation()"><i class="fa-solid fa-location-crosshairs"></i> Use My GPS Location</button>
+                            </div>
+                        </div>
+
+                        <!-- Active Reading Band -->
+                        <div class="side-block reading-overview" id="reading-overview-card">
+                            <div class="reading-header">
+                                <span class="location-name" id="display-place-name">Pune (City Center)</span>
+                                <span class="health-profile-tag" id="display-profile-tag">Normal</span>
+                            </div>
+                            <div class="reading-hero">
+                                <div class="aqi-badge-large" id="display-aqi-box">
+                                    <span class="aqi-val" id="display-aqi-num">--</span>
+                                    <span class="aqi-unit">AQI</span>
+                                </div>
+                                <div class="aqi-status-text">
+                                    <div class="category-name" id="display-category">Loading...</div>
+                                    <div class="confidence-text" id="display-confidence">Confidence: 95%</div>
+                                </div>
+                            </div>
+
+                            <!-- Scale Gradient -->
+                            <div class="aqi-meter-bar">
+                                <div class="bar-fill" id="aqi-meter-fill"></div>
+                            </div>
+                            <div class="meter-labels">
+                                <span>0</span><span>50</span><span>100</span><span>200</span><span>300</span><span>400+</span>
+                            </div>
+
+                            <!-- Weather Strip -->
+                            <div class="weather-strip">
+                                <div class="weather-item"><i class="fa-solid fa-temperature-half"></i> <span id="val-temp">--</span>°C</div>
+                                <div class="weather-item"><i class="fa-solid fa-droplet"></i> <span id="val-humidity">--</span>%</div>
+                                <div class="weather-item"><i class="fa-solid fa-wind"></i> <span id="val-wind">--</span> km/h</div>
+                            </div>
+                        </div>
+
+                        <!-- Pollutant Concentrations -->
+                        <div class="side-block">
+                            <h4 class="side-heading"><i class="fa-solid fa-flask"></i> Ambient Pollutants Concentration</h4>
+                            <div class="pollutant-meters">
+                                <div class="pol-gauge">
+                                    <div class="pol-info"><span>PM2.5</span><b id="pol-pm25">-- µg/m³</b></div>
+                                    <div class="pol-track"><div class="pol-fill" id="fill-pm25"></div></div>
+                                </div>
+                                <div class="pol-gauge">
+                                    <div class="pol-info"><span>PM10</span><b id="pol-pm10">-- µg/m³</b></div>
+                                    <div class="pol-track"><div class="pol-fill" id="fill-pm10"></div></div>
+                                </div>
+                                <div class="pol-gauge">
+                                    <div class="pol-info"><span>NO₂</span><b id="pol-no2">-- µg/m³</b></div>
+                                    <div class="pol-track"><div class="pol-fill" id="fill-no2"></div></div>
+                                </div>
+                                <div class="pol-gauge">
+                                    <div class="pol-info"><span>SO₂</span><b id="pol-so2">-- µg/m³</b></div>
+                                    <div class="pol-track"><div class="pol-fill" id="fill-so2"></div></div>
+                                </div>
+                                <div class="pol-gauge">
+                                    <div class="pol-info"><span>CO</span><b id="pol-co">-- µg/m³</b></div>
+                                    <div class="pol-track"><div class="pol-fill" id="fill-co"></div></div>
+                                </div>
+                                <div class="pol-gauge">
+                                    <div class="pol-info"><span>O₃</span><b id="pol-o3">-- µg/m³</b></div>
+                                    <div class="pol-track"><div class="pol-fill" id="fill-o3"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mobility Guidance & Health Shield -->
+                        <div class="side-block advice-card">
+                            <h4 class="side-heading"><i class="fa-solid fa-person-walking"></i> Smart Mobility & Health Advice</h4>
+                            <div class="mode-pill" id="advice-mode">Evaluating...</div>
+                            <div class="advice-facts">
+                                <div><small>Cleanest Window:</small> <strong id="advice-window">--</strong></div>
+                                <div><small>Mask Required:</small> <strong id="advice-mask">--</strong></div>
+                            </div>
+                            <p class="advice-desc" id="advice-desc">Select any point on the map to get personalized health & mobility recommendations.</p>
+                            <button class="btn-outline-sm btn-block" onclick="downloadLocationReport()"><i class="fa-solid fa-file-arrow-down"></i> Export Reading (JSON)</button>
+                        </div>
+                    </aside>
+
+                    <!-- Interactive Leaflet Map Canvas -->
+                    <div class="map-pane">
+                        <div id="leaflet-map"></div>
+
+                        <!-- Floating Layer Controls -->
+                        <div class="map-layer-toolbar">
+                            <button id="btn-toggle-traffic" class="layer-pill active" onclick="toggleTrafficLayer()">
+                                <i class="fa-solid fa-traffic-light"></i> Live Traffic
+                            </button>
+                            <button id="btn-toggle-heatmap" class="layer-pill active" onclick="toggleHeatmapLayer()">
+                                <i class="fa-solid fa-fire-flame-curved"></i> IDW AQI Heatmap
+                            </button>
+                            <button id="btn-toggle-stations" class="layer-pill active" onclick="toggleStationsLayer()">
+                                <i class="fa-solid fa-tower-broadcast"></i> Sensor Stations
+                            </button>
+                            <button id="btn-toggle-parking" class="layer-pill active" onclick="toggleParkingLayer()">
+                                <i class="fa-solid fa-square-parking"></i> Smart Parking
+                            </button>
+                        </div>
+
+                        <!-- Map Color Legend -->
+                        <div class="map-legend">
+                            <div class="legend-title">Legend</div>
+                            <div class="legend-section">
+                                <small>AQI Severity:</small>
+                                <div class="legend-items">
+                                    <span><i style="background:#10B981"></i> Good</span>
+                                    <span><i style="background:#84CC16"></i> Satisfactory</span>
+                                    <span><i style="background:#F59E0B"></i> Moderate</span>
+                                    <span><i style="background:#F97316"></i> Poor</span>
+                                    <span><i style="background:#EF4444"></i> Very Poor</span>
+                                    <span><i style="background:#991B1B"></i> Severe</span>
+                                </div>
+                            </div>
+                            <div class="legend-section">
+                                <small>Traffic Congestion:</small>
+                                <div class="legend-items">
+                                    <span><i style="background:#10B981"></i> Free Flow</span>
+                                    <span><i style="background:#F59E0B"></i> Moderate Jam</span>
+                                    <span><i style="background:#EF4444"></i> Heavy Congestion</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- TAB 3: SMART ROUTES & TRAFFIC CONGESTION                -->
+            <!-- ======================================================== -->
+            <section class="panel-section" id="panel-routes">
+                <div class="routes-container">
+                    
+                    <!-- Route Input Sidebar -->
+                    <aside class="route-sidebar">
+                        <div class="side-block">
+                            <h2 class="section-title"><i class="fa-solid fa-compass"></i> Smart Route Advisory</h2>
+                            <p class="section-sub">Find lowest pollution routes with live traffic delay modeling</p>
+
+                            <div class="input-form">
+                                <div class="form-group">
+                                    <label class="side-label">Origin (Starting Point)</label>
+                                    <div class="search-input-wrap">
+                                        <i class="fa-solid fa-circle-dot origin-icon"></i>
+                                        <input type="text" id="route-from-input" placeholder="e.g. Kothrud, Pune" autocomplete="off">
+                                    </div>
+                                    <div class="suggestions-box hidden" id="route-from-suggestions"></div>
+                                </div>
+
+                                <button class="btn-link" onclick="useMyLocationAsOrigin()"><i class="fa-solid fa-location-crosshairs"></i> Set current location as Origin</button>
+
+                                <div class="form-group">
+                                    <label class="side-label">Destination (Arrival Point)</label>
+                                    <div class="search-input-wrap">
+                                        <i class="fa-solid fa-location-dot dest-icon"></i>
+                                        <input type="text" id="route-to-input" placeholder="e.g. Hinjewadi Phase 1" autocomplete="off">
+                                    </div>
+                                    <div class="suggestions-box hidden" id="route-to-suggestions"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="side-label">Travel Mode</label>
+                                    <div class="mode-selector-grid">
+                                        <button class="mode-btn active" data-mode="driving" onclick="setTravelMode('driving')"><i class="fa-solid fa-car"></i> Car / Cab</button>
+                                        <button class="mode-btn" data-mode="motorcycle" onclick="setTravelMode('motorcycle')"><i class="fa-solid fa-motorcycle"></i> Two-Wheeler</button>
+                                        <button class="mode-btn" data-mode="cycling" onclick="setTravelMode('cycling')"><i class="fa-solid fa-bicycle"></i> Cycling</button>
+                                        <button class="mode-btn" data-mode="walking" onclick="setTravelMode('walking')"><i class="fa-solid fa-person-walking"></i> Walking</button>
+                                    </div>
+                                </div>
+
+                                <button id="calculate-routes-btn" class="btn-primary btn-block" onclick="calculateSmartRoutes()">
+                                    <i class="fa-solid fa-route"></i> Calculate Smart Routes
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Route Analysis Summary & Legend -->
+                        <div class="side-block">
+                            <h4 class="side-heading">Route Segment Color Coding</h4>
+                            <div class="route-legend-box">
+                                <div class="leg-item"><span class="line-swatch green-line"></span> Free Flow & Low AQI</div>
+                                <div class="leg-item"><span class="line-swatch orange-line"></span> Moderate Traffic / Moderate AQI</div>
+                                <div class="leg-item"><span class="line-swatch red-line"></span> High Traffic Congestion / High Exhaust</div>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Route Results Pane -->
+                    <div class="route-results-pane">
+                        <div class="results-header">
+                            <div>
+                                <h3 class="results-title" id="route-results-header">Route Options Comparison</h3>
+                                <p class="results-sub" id="route-results-sub">Enter origin and destination to calculate alternative routes</p>
+                            </div>
+                            <div id="traffic-peak-indicator" class="traffic-tag normal">Traffic Status: Normal</div>
+                        </div>
+
+                        <!-- Route Comparison Cards Grid -->
+                        <div class="route-cards-grid" id="route-cards-container">
+                            <div class="placeholder-card">
+                                <i class="fa-solid fa-map-marked-alt placeholder-icon"></i>
+                                <h3>No Routes Calculated Yet</h3>
+                                <p>Specify starting point and destination in the left panel and click 'Calculate Smart Routes'.</p>
+                            </div>
+                        </div>
+
+                        <!-- Multi-Modal Travel Time & Health Comparison Matrix -->
+                        <div id="multi-modal-matrix-section" class="multi-modal-section hidden">
+                            <div class="matrix-header">
+                                <div>
+                                    <h4 class="matrix-title"><i class="fa-solid fa-arrows-split-up-and-left"></i> Multi-Modal Travel Time & Exposure Comparison</h4>
+                                    <p class="matrix-sub">Realistic travel times, traffic delay avoidance, physical calories, and respiratory intake dosage for this route</p>
+                                </div>
+                            </div>
+                            <div class="modes-comparison-grid" id="modes-comparison-grid">
+                                <!-- Populated dynamically by JS for 4 modes -->
+                            </div>
+                        </div>
+
+                        <!-- Nearest Destination Smart Parking Hubs -->
+                        <div id="destination-parking-section" class="dest-parking-section hidden">
+                            <div class="dest-parking-header">
+                                <div>
+                                    <h4 class="dest-parking-title"><i class="fa-solid fa-square-parking"></i> Nearest Parking at Destination</h4>
+                                    <p class="dest-parking-sub">Real-time slot availability, EV charging bays, and instant parking reservation</p>
+                                </div>
+                                <button class="btn-sm btn-outline-primary" onclick="switchMainTab('parking')"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Full Parking Hub</button>
+                            </div>
+                            <div class="dest-parking-grid" id="dest-parking-cards">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Leaflet Route Preview Map -->
+                        <div class="route-map-wrap">
+                            <div id="route-preview-map"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- TAB 4: 24-HOUR FORECAST & TRENDS                         -->
+            <!-- ======================================================== -->
+            <section class="panel-section" id="panel-forecast">
+                <div class="forecast-container">
+                    <div class="forecast-header">
+                        <div>
+                            <h1 class="page-title">Predictive AQI Forecasting (Next 24 Hours)</h1>
+                            <p class="page-desc">Time-series forecasting combining Open-Meteo multi-pollutant feeds with our trained Random Forest model</p>
+                        </div>
+                        <div class="forecast-city-badge" id="forecast-current-city">Pune Region</div>
+                    </div>
+
+                    <!-- Cleanest Window Hero Banner -->
+                    <div class="clean-window-hero" id="clean-window-banner">
+                        <div class="window-icon"><i class="fa-solid fa-leaf"></i></div>
+                        <div class="window-details">
+                            <div class="window-title">Recommended Cleanest Travel Window</div>
+                            <div class="window-time" id="cleanest-window-time">Computing optimal window...</div>
+                            <div class="window-desc" id="cleanest-window-desc">Finding the cleanest 2-hour contiguous block today.</div>
+                        </div>
+                    </div>
+
+                    <!-- 24-Hour Trend Line Chart with Confidence Band -->
+                    <div class="glass-card chart-card large-chart">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">Hourly Forecast Curve with 95% Confidence Interval</h3>
+                                <p class="card-subtitle">Predicted AQI vs Upper/Lower error boundaries across 24 hours</p>
+                            </div>
+                            <span class="badge badge-accent">ML Time-Series Model</span>
+                        </div>
+                        <div class="chart-container-large">
+                            <canvas id="forecastLineChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Hourly Snapshots Timeline Cards -->
+                    <h3 class="sub-heading">Key Forecast Checkpoints</h3>
+                    <div class="snapshots-grid" id="forecast-snapshots-grid">
+                        <!-- Populated by JS: Now, +1h, +3h, +6h, +12h, +24h -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- TAB 5: PERSONAL EXPOSURE & HEALTH HISTORY               -->
+            <!-- ======================================================== -->
+            <section class="panel-section" id="panel-exposure">
+                <div class="exposure-container">
+                    <div class="exposure-header">
+                        <div>
+                            <h1 class="page-title">Personal Pollution Exposure History</h1>
+                            <p class="page-desc">Tracks your accumulated particulate matter inhalation dosage and journey history</p>
+                        </div>
+                        <button class="btn-outline-sm" onclick="exportExposureCSV()"><i class="fa-solid fa-download"></i> Export Journey History</button>
+                    </div>
+
+                    <!-- Daily Cumulative Exposure Meter -->
+                    <div class="exposure-metrics-grid">
+                        <div class="glass-card meter-card">
+                            <h3 class="card-title">Today's Cumulative Exposure Dosage</h3>
+                            <div class="dosage-display">
+                                <span class="dosage-number" id="exposure-today-num">0.0</span>
+                                <span class="dosage-unit">AQI · Hours</span>
+                            </div>
+                            <div class="dosage-bar-wrap">
+                                <div class="dosage-fill" id="exposure-today-fill" style="width: 15%;"></div>
+                            </div>
+                            <div class="dosage-footer">
+                                <span>Safe Daily Limit: 250 AQI·hr</span>
+                                <span id="exposure-safety-status" class="status-safe">Safe Risk Level</span>
+                            </div>
+                        </div>
+
+                        <div class="glass-card summary-card">
+                            <h3 class="card-title">Health Sensitivity Configuration</h3>
+                            <div class="profile-current-display">
+                                <div class="prof-name" id="exposure-profile-name">Normal Public</div>
+                                <div class="prof-thresh" id="exposure-profile-thresh">Alert Threshold: 150 AQI</div>
+                                <p id="exposure-profile-desc">Standard sensitivity settings applied across notifications and routing recommendations.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Completed Journeys Log Table -->
+                    <div class="glass-card table-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Logged Travel Journeys & Exposure</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Origin</th>
+                                        <th>Destination</th>
+                                        <th>Route Chosen</th>
+                                        <th>Distance</th>
+                                        <th>Travel Duration</th>
+                                        <th>Avg AQI</th>
+                                        <th>Cumulative Dosage</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="exposure-history-table-body">
+                                    <tr><td colspan="8" class="text-center">No completed journeys logged yet. Use Smart Routes to calculate and save a trip!</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- TAB 6: SMART PARKING INTELLIGENCE & RESERVATION         -->
+            <!-- ======================================================== -->
+            <section class="panel-section" id="panel-parking">
+                <div class="parking-container">
+                    <div class="parking-header-row">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-square-parking text-cyan"></i> Smart Parking Hub & Slot Telemetry</h1>
+                            <p class="page-desc">Real-time multi-level parking occupancy, 4-wheeler, 2-wheeler & EV charging availability, bay air quality, and 1-click slot reservation.</p>
+                        </div>
+                        <div class="parking-header-controls">
+                            <div class="search-input-wrap parking-search">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" id="parking-search-input" placeholder="Search parking hub or area..." oninput="filterParkingCards()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter pills for Vehicle Types -->
+                    <div class="parking-filter-bar">
+                        <div class="filter-pills">
+                            <button class="filter-pill active" data-vtype="all" onclick="filterParkingByType('all', this)"><i class="fa-solid fa-layer-group"></i> All Hubs</button>
+                            <button class="filter-pill" data-vtype="car" onclick="filterParkingByType('car', this)"><i class="fa-solid fa-car"></i> 4-Wheeler Car</button>
+                            <button class="filter-pill" data-vtype="bike" onclick="filterParkingByType('bike', this)"><i class="fa-solid fa-motorcycle"></i> 2-Wheeler</button>
+                            <button class="filter-pill" data-vtype="ev" onclick="filterParkingByType('ev', this)"><i class="fa-solid fa-bolt"></i> EV Fast Charging</button>
+                        </div>
+                        <div class="parking-quick-stats" id="parking-quick-stats">
+                            <span><i class="fa-solid fa-circle-check text-green"></i> <b>12</b> Active Parking Hubs</span>
+                            <span><i class="fa-solid fa-car text-cyan"></i> <b id="stat-avail-cars">--</b> Car Slots Free</span>
+                            <span><i class="fa-solid fa-motorcycle text-purple"></i> <b id="stat-avail-bikes">--</b> Bike Slots Free</span>
+                            <span><i class="fa-solid fa-bolt text-amber"></i> <b id="stat-avail-ev">--</b> EV Slots Free</span>
+                        </div>
+                    </div>
+
+                    <!-- Active Reservations Alert (if any booked) -->
+                    <div id="active-ticket-banner" class="active-ticket-banner hidden"></div>
+
+                    <!-- Parking Hubs Grid -->
+                    <div class="parking-grid" id="parking-hubs-grid">
+                        <div class="text-center p-4">Loading real-time smart parking data...</div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ==================== Floating AI Chatbot ("AirIQ EcoBot") ==================== -->
+        <div class="chatbot-wrapper">
+            <!-- Floating Launch Button -->
+            <button id="chatbot-toggle-btn" class="chatbot-fab" onclick="toggleChatbot()" title="Ask AirIQ Environmental Assistant">
+                <i class="fa-solid fa-comments"></i>
+                <span class="fab-ping"></span>
+            </button>
+
+            <!-- Chatbot Window -->
+            <div id="chatbot-modal" class="chatbot-modal hidden">
+                <div class="chat-header">
+                    <div class="bot-info">
+                        <div class="bot-avatar"><i class="fa-solid fa-robot"></i></div>
+                        <div>
+                            <div class="bot-name">AirIQ Assistant</div>
+                            <div class="bot-status"><span class="status-dot"></span> Online • English / Tanglish</div>
+                        </div>
+                    </div>
+                    <button class="chat-close-btn" onclick="toggleChatbot()"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <!-- Chat Messages Scroll Area -->
+                <div class="chat-body" id="chat-messages-container">
+                    <div class="chat-msg bot-msg">
+                        <div class="msg-bubble">
+                            Vanakkam! I am <strong>AirIQ EcoBot</strong>, your AI Environmental Intelligence assistant. 🌿<br><br>
+                            Ask me about localized AQI, safe routes, traffic, mask advice, or asthma precautions in <strong>English or Tanglish/Tamil</strong>!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Prompt Chips -->
+                <div class="chat-prompts">
+                    <button class="prompt-chip" onclick="sendQuickPrompt('Is it safe to go outside right now?')">Is it safe outside?</button>
+                    <button class="prompt-chip" onclick="sendQuickPrompt('Do I need an N95 mask today?')">Need N95 mask?</button>
+                    <button class="prompt-chip" onclick="sendQuickPrompt('Enaku asthma iruku, ipo veliya polama?')">Asthma guidance?</button>
+                    <button class="prompt-chip" onclick="sendQuickPrompt('Cleanest route and traffic status?')">Cleanest route?</button>
+                </div>
+
+                <!-- Chat Input Row -->
+                <div class="chat-input-row">
+                    <input type="text" id="chat-input" placeholder="Type your environmental question..." onkeydown="handleChatKeyDown(event)">
+                    <button id="chat-send-btn" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== Smart Parking Booking Modal ==================== -->
+        <div id="parking-modal" class="custom-modal hidden">
+            <div class="modal-backdrop" onclick="closeParkingModal()"></div>
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <div>
+                        <h3 class="modal-title" id="modal-park-name">Reserve Parking Slot</h3>
+                        <p class="modal-sub" id="modal-park-area">Instant digital pass generation</p>
+                    </div>
+                    <button class="modal-close" onclick="closeParkingModal()"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body" id="modal-park-body">
+                    <form id="parking-reserve-form" onsubmit="handleParkingReservation(event)">
+                        <input type="hidden" id="modal-hub-id">
+                        <div class="form-group">
+                            <label class="modal-label">Select Vehicle Category</label>
+                            <select id="modal-vehicle-type" class="modal-select" onchange="updateModalFeeEstimate()">
+                                <option value="car" selected>🚗 4-Wheeler (Car / SUV)</option>
+                                <option value="motorcycle">🏍️ 2-Wheeler (Bike / Scooter)</option>
+                                <option value="ev">⚡ EV Charging Slot (Priority Fast Charger)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="modal-label">Vehicle Registration Number</label>
+                            <input type="text" id="modal-vehicle-no" class="modal-input" placeholder="e.g. MH-12-AB-1234" required pattern="[A-Za-z0-9\- ]{4,15}">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="modal-label">Parking Duration (Hours)</label>
+                                <select id="modal-park-duration" class="modal-select" onchange="updateModalFeeEstimate()">
+                                    <option value="1">1 Hour</option>
+                                    <option value="2" selected>2 Hours</option>
+                                    <option value="4">4 Hours</option>
+                                    <option value="8">Full Day (8 Hours)</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="modal-label">Estimated Total Fee</label>
+                                <div class="fee-badge" id="modal-fee-display">₹40</div>
+                            </div>
+                        </div>
+                        <div class="park-perks">
+                            <span><i class="fa-solid fa-shield-halved text-green"></i> 24/7 CCTV & Security</span>
+                            <span><i class="fa-solid fa-bolt text-amber"></i> EV Fast Charger</span>
+                            <span><i class="fa-solid fa-ticket text-cyan"></i> Instant Digital Pass</span>
+                        </div>
+                        <button type="submit" class="btn-primary btn-block btn-lg" id="btn-confirm-booking">
+                            <i class="fa-solid fa-check-circle"></i> Confirm & Generate Digital Pass
+                        </button>
+                    </form>
+
+                    <!-- Digital Pass View (Shown after booking) -->
+                    <div id="digital-pass-view" class="digital-pass-card hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- USER AUTHENTICATION & LOGIN MODAL                        -->
+        <!-- ======================================================== -->
+        <div id="auth-modal" class="custom-modal hidden">
+            <div class="modal-backdrop" onclick="closeAuthModal()"></div>
+            <div class="modal-dialog auth-modal-dialog">
+                <div class="modal-header">
+                    <div class="auth-modal-branding">
+                        <div class="auth-modal-logo"><i class="fa-solid fa-wind"></i></div>
+                        <div>
+                            <div class="modal-title">AirSense <span>AI</span> Account</div>
+                            <div class="modal-sub">Personalized Environmental Intelligence</div>
+                        </div>
+                    </div>
+                    <button class="modal-close" onclick="closeAuthModal()"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="auth-modal-tabs">
+                    <button class="auth-m-tab-btn active" id="m-tab-login-btn" onclick="switchModalAuthTab('login')">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+                    </button>
+                    <button class="auth-m-tab-btn" id="m-tab-register-btn" onclick="switchModalAuthTab('register')">
+                        <i class="fa-solid fa-user-plus"></i> Create Account
+                    </button>
+                </div>
+
+                <div class="modal-body auth-modal-body">
+                    <!-- Toast alert -->
+                    <div id="modal-auth-alert" class="auth-toast-msg" style="display:none;"></div>
+
+                    <!-- Panel 1: Login -->
+                    <div class="auth-m-panel active" id="m-panel-login">
+                        <form id="modal-login-form" onsubmit="handleModalLogin(event)">
+                            <div class="form-group-auth">
+                                <label class="auth-label">Email or Username</label>
+                                <div class="auth-input-wrap">
+                                    <i class="fa-solid fa-envelope input-icon"></i>
+                                    <input type="text" id="m-login-email" class="auth-input" placeholder="e.g. sanjeevini@airsense.ai" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group-auth">
+                                <label class="auth-label">Password</label>
+                                <div class="auth-input-wrap">
+                                    <i class="fa-solid fa-lock input-icon"></i>
+                                    <input type="password" id="m-login-password" class="auth-input" placeholder="Enter password" required>
+                                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVis('m-login-password')">
+                                        <i class="fa-solid fa-eye" id="eye-m-login-password"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="auth-row-extra">
+                                <label class="auth-checkbox-label">
+                                    <input type="checkbox" id="m-login-remember" checked>
+                                    <span>Keep signed in</span>
+                                </label>
+                                <a href="login.html" class="auth-link">Full Login Page <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                            </div>
+
+                            <button type="submit" id="btn-m-login-submit" class="btn-auth-submit">
+                                <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+                            </button>
+                        </form>
+
+                        <div class="auth-divider"><span>Fast 1-Click Demo Profiles</span></div>
+                        <div class="demo-logins-grid">
+                            <button type="button" class="btn-demo-quick" onclick="quickDemoLogin('sanjeevini')">
+                                <i class="fa-solid fa-lungs" style="color:#ef4444"></i>
+                                <div>
+                                    <div style="font-weight:700">Sanjeevini S.</div>
+                                    <div style="font-size:0.67rem; color:#94a3b8">Asthma Mode (Chennai)</div>
+                                </div>
+                            </button>
+                            <button type="button" class="btn-demo-quick" onclick="quickDemoLogin('commuter')">
+                                <i class="fa-solid fa-car-side" style="color:#06b6d4"></i>
+                                <div>
+                                    <div style="font-weight:700">Rahul Sharma</div>
+                                    <div style="font-size:0.67rem; color:#94a3b8">Commuter (Mumbai)</div>
+                                </div>
+                            </button>
+                            <button type="button" class="btn-demo-quick" onclick="quickDemoLogin('cyclist')">
+                                <i class="fa-solid fa-person-biking" style="color:#10b981"></i>
+                                <div>
+                                    <div style="font-weight:700">Ananya Rao</div>
+                                    <div style="font-size:0.67rem; color:#94a3b8">Eco Cyclist (Bengaluru)</div>
+                                </div>
+                            </button>
+                            <button type="button" class="btn-demo-quick" onclick="quickDemoLogin('admin')">
+                                <i class="fa-solid fa-shield-halved" style="color:#a855f7"></i>
+                                <div>
+                                    <div style="font-weight:700">AirSense Admin</div>
+                                    <div style="font-size:0.67rem; color:#94a3b8">Central HQ (Pune)</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Panel 2: Register -->
+                    <div class="auth-m-panel" id="m-panel-register" style="display:none;">
+                        <form id="modal-register-form" onsubmit="handleModalRegister(event)">
+                            <div class="form-group-auth">
+                                <label class="auth-label">Full Name</label>
+                                <div class="auth-input-wrap">
+                                    <i class="fa-solid fa-user input-icon"></i>
+                                    <input type="text" id="m-reg-name" class="auth-input" placeholder="e.g. Sanjeevini Sasikumar" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group-auth">
+                                <label class="auth-label">Email Address</label>
+                                <div class="auth-input-wrap">
+                                    <i class="fa-solid fa-envelope input-icon"></i>
+                                    <input type="email" id="m-reg-email" class="auth-input" placeholder="name@example.com" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group-auth">
+                                <label class="auth-label">Password</label>
+                                <div class="auth-input-wrap">
+                                    <i class="fa-solid fa-lock input-icon"></i>
+                                    <input type="password" id="m-reg-password" class="auth-input" placeholder="Create password" required minlength="4">
+                                </div>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.6rem;">
+                                <div class="form-group-auth">
+                                    <label class="auth-label">Primary City</label>
+                                    <div class="auth-input-wrap">
+                                        <i class="fa-solid fa-city input-icon"></i>
+                                        <select id="m-reg-city" class="auth-select">
+                                            <option value="chennai" selected>Chennai</option>
+                                            <option value="pune">Pune</option>
+                                            <option value="delhi">Delhi NCR</option>
+                                            <option value="mumbai">Mumbai</option>
+                                            <option value="bengaluru">Bengaluru</option>
+                                            <option value="coimbatore">Coimbatore</option>
+                                            <option value="madurai">Madurai</option>
+                                            <option value="salem">Salem</option>
+                                            <option value="trichy">Trichy</option>
+                                            <option value="hyderabad">Hyderabad</option>
+                                            <option value="kolkata">Kolkata</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group-auth">
+                                    <label class="auth-label">Health Profile</label>
+                                    <div class="auth-input-wrap">
+                                        <i class="fa-solid fa-heart-pulse input-icon"></i>
+                                        <select id="m-reg-profile" class="auth-select">
+                                            <option value="normal">Normal</option>
+                                            <option value="asthmatic">Asthmatic</option>
+                                            <option value="elderly">Elderly (65+)</option>
+                                            <option value="children">Child (<12)</option>
+                                            <option value="athlete">Athlete</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="btn-m-reg-submit" class="btn-auth-submit" style="margin-top:0.4rem">
+                                <i class="fa-solid fa-user-check"></i> Create Account
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>

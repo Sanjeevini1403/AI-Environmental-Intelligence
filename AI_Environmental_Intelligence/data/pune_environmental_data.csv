@@ -1,0 +1,2 @@
+timestamp,latitude,longitude,temperature,humidity,wind_speed,pm2_5,pm10,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone
+2026-09-02 18:08:29,18.5204,73.8567,24.6,79,16.2,4.4,6.8,125.0,6.8,6.6,25.0

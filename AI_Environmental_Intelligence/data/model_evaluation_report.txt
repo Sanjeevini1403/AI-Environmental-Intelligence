@@ -1,0 +1,19 @@
+====================================================
+AI Environmental Intelligence - Model Evaluation Report
+Retrained on: 2026-09-22 15:52:48
+Dataset Source: C:\Users\sanje\Downloads\AI_Environmental_Intelligence (2)\AI_Environmental_Intelligence\data\pune_aqi_dataset.csv
+Samples: 103205
+====================================================
+Performance Metrics (Test Split 20%):
+Mean Absolute Error (MAE) : 0.00
+Root Mean Squared Error   : 0.06
+Coefficient of Det. (R²)  : 1.0000
+5-Fold Cross-Val Mean R² : 1.0000
+
+Feature Importance:
+ - NO2     : 85.62%
+ - SO2     : 6.81%
+ - O3      : 6.68%
+ - CO      : 0.59%
+ - PM2_5   : 0.26%
+ - PM10    : 0.04%
